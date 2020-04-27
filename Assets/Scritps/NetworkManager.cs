@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NetworkManager : Photon.MonoBehaviour
+public class NetworkManager : Photon.PunBehaviour
 {
     public string Version = "1.0";
     private const int MAX_PLAYERS = 4;
@@ -12,14 +12,28 @@ public class NetworkManager : Photon.MonoBehaviour
         PhotonNetwork.ConnectUsingSettings(Version);
     }
 
-    void OnConnectedToMaster()
+    public override void OnConnectedToPhoton()
     {
-        PhotonNetwork.JoinOrCreateRoom("Global", new RoomOptions() { MaxPlayers = MAX_PLAYERS },null);
+        Debug.Log("[NetworkManager][OnConnectedToPhoton]");
     }
 
-    void OnJoinedRoom()
+    public override void OnConnectedToMaster()
     {
-        PhotonNetwork.Instantiate("Sphere", transform.position, transform.rotation, 0);
+        Debug.Log("[NetworkManager][OnConnectedToMaster]");
+        var options = new RoomOptions();
+        options.MaxPlayers = MAX_PLAYERS;
+        PhotonNetwork.JoinOrCreateRoom("Global", options, TypedLobby.Default);
+    }
+
+    public override void OnCreatedRoom()
+    {
+        Debug.Log("[NetworkManager][OnCreatedRoom]");
+    }
+
+    public override void OnJoinedRoom()
+    {
+        Debug.Log("[NetworkManager][OnJoinedRoom]");
+        PhotonNetwork.Instantiate("Sphere", Vector3.zero, Quaternion.identity, 0);
     }
 
     void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
